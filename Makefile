@@ -1,7 +1,7 @@
 CXX = clang++
 SDL = -framework SDL2
 
-CXXFLAGS = -Wall -c -std=c++11
+CXXFLAGS = -Wall -c -std=c++11 -g
 LDFLAGS = $(SDL)
 EXE = sim
 

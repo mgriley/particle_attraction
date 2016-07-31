@@ -7,7 +7,10 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    int width = 600, height = 600;
+    if (argc < 2) return 0; // must give num particles
+    bool DRAW_CURRENT = argc <= 2; // if a 3rd arg is given, don't draw
+
+    int width = 1000, height = 700;
 
     int numParticles = stoi(argv[1]);
 
@@ -42,9 +45,12 @@ int main(int argc, char** argv) {
     // Get the window surface
     SDL_Surface* surface = SDL_GetWindowSurface(win);
 
+    // set blend mode
+    SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
+
     // keep a history of past particle positions
-    vector<float> hist(width * height, -1.0f);
-    float maxVel = 300.0f; // TODO tune
+    vector<int> hist(width * height, -1);
+    float maxVel = 1000.0f; // TODO tune
 
     float timeStep = 1.0f / 60.0f; // run at 60Hz
     clock_t timer = clock(); // init timer
@@ -63,8 +69,8 @@ int main(int argc, char** argv) {
         timer = now;
 
         // update the simulation
-        printf("step\n");
-        sim.step(timeStep);
+        //printf("step\n");
+        sim.concurrentStep(timeStep);
 
         // Handle events
         while (SDL_PollEvent(&e) != 0) {
@@ -74,31 +80,30 @@ int main(int argc, char** argv) {
         }
 
         // clear screen, fill with the draw color
-        SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
+        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
         SDL_RenderClear(ren);
 
         // save current particle positions
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
         for (int i = 0; i < sim.particles->size(); ++i) {
             Simulation::particle part = sim.particles->at(i);
             v2 p = part.pos;
             int x = (int) p.x;
             int y = (int) p.y;
             if (0 <= x && x < width && 0 <= y && y < height) {
-                hist[width * y + x] = max(hist[width * y + x], mag(part.vel));
+                hist[width * y + x] = 1;
+                if (!DRAW_CURRENT) continue;
                 SDL_Rect r = {x - 1, y - 1, 3, 3};
                 SDL_RenderFillRect(ren, &r);
-
             }
         }
 
         // draw entire hist
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                float mag = hist[y * width + x];
-                if (mag < 0) continue;
-                float scaled = 255 * mag / maxVel;
-                SDL_SetRenderDrawColor(ren, scaled, 0, 0, 255);
+                int index = hist[y * width + x];
+                if (index < 0) continue;
+                SDL_SetRenderDrawColor(ren, 255, 255, 255, 100);
                 SDL_RenderDrawPoint(ren, x, y);
             }
         }

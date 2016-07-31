@@ -45,7 +45,7 @@ v2 normalized(v2 v) {
 }
 
 float distSq(v2 a, v2 b) {
-    return pow(a.x - b.x, 2) + pow(a.x - b.x, 2);
+    return pow(a.x - b.x, 2) + pow(a.y - b.y, 2);
 }
 
 string v2Str(v2 v) {
