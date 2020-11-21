@@ -8,6 +8,12 @@
 #include <thread>
 #include <math.h>
 
+/*
+   Handle collisions. Can start out by assuming that all collisions are perfectly inelastic (particles combine).
+   If dist < threshold, sum masses, maybe velocities too for jokes.
+   Branch before those changes though. Then, can make an algorithm to judge order, and try different equations (1st, just different exponents of dist) 
+*/
+
 using namespace std;
 
 class Simulation {
@@ -31,7 +37,7 @@ public:
         particles = new vector<particle>(numParticles);
         newParticles = new vector<particle>(numParticles);
 
-        float r = 200;
+        float r = 100;
         for (int i = 0; i < numParticles; ++i) {
             float angle = i / (float) numParticles * 2 * M_PI;
             float x = width / 2 + r * cos(angle);
